@@ -72,11 +72,9 @@ angular.module('controller', [])
 
 	$scope.graph = {};
 	$scope.graph.labels = ["January", "February", "March", "April", "May", "June", "July"];
-	$scope.graph.series = ['Series A', 'Series B', 'Series C'];
+	$scope.graph.series = ['Series A'];
 	$scope.graph.data = [
-		[65, 59, 80, 81, 56, 55, 40],
-		[28, 48, 40, 19, 86, 27, 90],
-		[28, 48, 4, 1, 8, 20, 94]
+		[65, 59, 80, 81, 56, 55, 40]
 	];
 
 	$scope.onClick = function (points, evt) {
@@ -95,9 +93,7 @@ angular.module('controller', [])
 
 	$interval(function () {
 		$scope.graph.data = [
-			[28, 48, 04, Math.random(), 08, 20, 94],
-			[28, 48, 40, 19, 86, 27, Math.random()],
-			[65, 59, Math.random(), 81, 56, 55, 40]
+			[28, 48, 04, Math.random(), 08, 20, 94]
 		];
 	}, 1000);
 
