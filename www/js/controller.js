@@ -5,6 +5,11 @@ angular.module('controller', [])
 	$scope.deviceList = [];
 	$scope.isConnected = false;
 
+	var count = 0;
+
+	Chart.defaults.global.animation = false;
+	//Chart.defaults.global.responsive = false;
+
 	$scope.getDevices = function() {
 	    $cordovaBluetoothSerial.isEnabled().then(
 	      function() {
@@ -71,10 +76,10 @@ angular.module('controller', [])
 	};
 
 	$scope.graph = {};
-	$scope.graph.labels = ["January", "February", "March", "April", "May", "June", "July"];
-	$scope.graph.series = ['Series A'];
+	$scope.graph.series = ['Sensor_1', 'Sensor_2', 'Sensor_3'];
+	$scope.graph.labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 	$scope.graph.data = [
-		[65, 59, 80, 81, 56, 55, 40]
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	];
 
 	$scope.onClick = function (points, evt) {
@@ -92,10 +97,19 @@ angular.module('controller', [])
 	}, 1000); */
 
 	$interval(function () {
-		$scope.graph.data = [
-			[28, 48, 04, Math.random(), 08, 20, 94]
-		];
-	}, 1000);
+		var sensorData = $scope.graph.data;
+		sensorData[0].shift();
+		sensorData[0].push(Math.random() * 100);
+		$scope.graph.data = sensorData;
+
+		var sensorLabels = $scope.graph.labels;
+		sensorLabels.shift();
+		$scope.graph.labels.push(count);
+		$scope.graph.labels = sensorLabels;
+
+
+		count = count + 2;
+	}, 2000);
 
 });
 
