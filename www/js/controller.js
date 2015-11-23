@@ -1,14 +1,56 @@
 angular.module('controller', [])
 
-.controller('blueController', function($scope, $cordovaBluetoothSerial, $timeout, $interval) {
-	$scope.name = '';
+.controller('DroneController', function(
+	$scope,
+	$cordovaBluetoothSerial,
+	$timeout,
+	$interval,
+	$cordovaGeolocation
+) {
+	//$scope.name = '';
+	$scope.sensorsSelected = false;
+	$scope.mapsSelected = false;
 	$scope.deviceList = [];
 	$scope.isConnected = false;
 
 	var count = 0;
-
+	var recording;
 	Chart.defaults.global.animation = false;
 	//Chart.defaults.global.responsive = false;
+
+	$scope.showSensors = function() {
+		$scope.mapsSelected = false;
+		$scope.sensorsSelected = true;
+
+		$scope.graph = {};
+		$scope.graph.series = ['Sensor_VS_Time'];
+//		$scope.graph.labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		$scope.graph.labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		$scope.graph.data1 = [
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		];
+		$scope.graph.data2 = [
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		];
+		$scope.graph.data3 = [
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		];
+
+		if ( !$scope.isConnected ) {
+			alert("Bluetooh Disconnected!");
+		}
+	};
+
+	$scope.showMaps = function() {
+		$scope.mapHeight = window.screen.height;
+		$scope.sensorsSelected = false;
+		$scope.mapsSelected = true;
+
+		$scope.stopSensorData();
+		count = 0;
+	};
 
 	$scope.getDevices = function() {
 	    $cordovaBluetoothSerial.isEnabled().then(
@@ -41,6 +83,7 @@ angular.module('controller', [])
 				$timeout(
 					function() {
 						$scope.isConnected = true;
+						alert("Connected! " + $scope.isConnected);
 					},
 					3000
 				);
@@ -59,6 +102,7 @@ angular.module('controller', [])
 					$cordovaBluetoothSerial.write(param);
 				} else {
 					$cordovaBluetoothSerial.write($scope.dataToSend);
+					$scope.dataToSend = '';
 				}
 			},
 			function() {
@@ -75,41 +119,89 @@ angular.module('controller', [])
 		}
 	};
 
-	$scope.graph = {};
-	$scope.graph.series = ['Sensor_1', 'Sensor_2', 'Sensor_3'];
-	$scope.graph.labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
-	$scope.graph.data = [
-		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-	];
-
-	$scope.onClick = function (points, evt) {
-		console.log(points, evt);
+	$scope.getSensorData = function() {
+		$scope.startRecord();
+		$scope.isGettingSensorData = true;
 	};
 
-	// Simulate async data update
-	/*$interval(function () {
-		$cordovaBluetoothSerial.readUntil('\n', function (data) {
-		    console.log(data);
-		    if ( data.charAt(0) === 'E' ) {
-		    	alert('yeah!');
-		    }
-		});
-	}, 1000); */
+	$scope.startRecord = function() {
 
-	$interval(function () {
-		var sensorData = $scope.graph.data;
-		sensorData[0].shift();
-		sensorData[0].push(Math.random() * 100);
-		$scope.graph.data = sensorData;
+		recording = $interval(function () {
+			$cordovaBluetoothSerial.readUntil('\n').then(
+				function (data) {
+			    	console.log(data);
+			    	var dataReceived = [];
+			    	dataReceived = data.split('-');
+				    if ( dataReceived[0] === 'R' ) {
+						var sensorData1 = $scope.graph.data1;
+						sensorData1[0].shift();
+						sensorData1[0].push(dataReceived[1]);
+						$scope.graph.data1 = sensorData1;
 
-		var sensorLabels = $scope.graph.labels;
-		sensorLabels.shift();
-		$scope.graph.labels.push(count);
-		$scope.graph.labels = sensorLabels;
+						var sensorData2 = $scope.graph.data2;
+						sensorData1[1].shift();
+						sensorData1[1].push(dataReceived[2]);
+						$scope.graph.data2 = sensorData2;
 
+						var sensorData3 = $scope.graph.data3;
+						sensorData1[2].shift();
+						sensorData1[2].push(dataReceived[3]);
+						$scope.graph.data3 = sensorData3;
 
-		count = count + 2;
-	}, 2000);
+						var sensorLabels = $scope.graph.labels;
+						sensorLabels.shift();
+						$scope.graph.labels.push(count);
+						$scope.graph.labels = sensorLabels;
+
+						count = count++;
+				    }
+				}
+			);
+		}, 200);
+	};
+
+	$scope.stopSensorData = function() {
+		$interval.cancel(recording);
+		$scope.isGettingSensorData = false;
+	};
+
+	/*$scope.onClick = function (points, evt) {
+		console.log(points, evt);
+	};*/
+
+/////////////////////// MAPS ///////////////////////
+
+	var options = {timeout: 10000, enableHighAccuracy: true};
+	$scope.centerMe = function() {
+		$cordovaGeolocation.getCurrentPosition(options).then(
+			function(position) {
+				//var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+				var latLng = new google.maps.LatLng(37.3000, -120.4833);
+				var mapOptions = {
+					center: latLng,
+					zoom: 16,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				};
+
+		        var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+		 
+		        navigator.geolocation.getCurrentPosition(function(pos) {
+		            map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+		            var myLocation = new google.maps.Marker({
+		                position: new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude),
+		                map: map,
+		                title: "My Location"
+		            });
+		        });
+
+				$scope.map = map;
+
+			},
+			function(error) {
+				console.log("Could not get location");
+			}
+		) 	;
+	};
 
 });
 

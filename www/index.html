@@ -31,17 +31,29 @@
     <!-- your app's js -->
     <script src="js/app.js"></script>
     <script src="js/controller.js"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCi9qqyU5sxNF4IZBtpL0HTtfRh_CY2Uro&sensor=true"></script>
     
   </head>
   <body ng-app="BlueChart">
 
     <ion-pane>
       <ion-header-bar class="bar bar-header bar-dark">
-        <h1 class="title">Bluetooth Charting</h1>
+        <h1 class="title">Drone App</h1>
       </ion-header-bar>
-      <ion-content ng-controller="blueController">
 
-        <div class="list">
+      <ion-content ng-controller="DroneController">
+
+        <div class="row">
+          <button class="col col-50 button button-assertive" ng-click="showSensors()">
+            <i class="ion-ios-pulse-strong"></i>
+          </button>
+          <button class="col col-50 button button-assertive" ng-click="showMaps()">
+            <i class="ion-android-compass"></i>
+          </button>
+        </div>
+
+        <div ng-show="sensorsSelected">
           <label class="item item-input item-select">
             <div class="input-label">
               Select Device
@@ -50,18 +62,14 @@
               <option value="">Select</option>p
             </select>
           </label>
-        </div>
 
-        <div class="list">
           <div class="item item-button-right">
             <input type="text" placeholder="Type Data To Send" ng-model="dataToSend">
             <button class="button button-assertive" ng-click="send()">
               <i class="ion-play"></i>
             </button>
           </div>
-        </div>
 
-        <div class="list">
           <div class="item range">
             <i class="ion-arrow-left-a"></i>
             <input type="range" name="pwm" min="0" max="160" value="0" ng-model="pwm" ng-change="pwmChanged()">
@@ -70,31 +78,44 @@
 
           <div class="card">
             <div class="item item-text-wrap item-button-right">
-              Connected To: {{currSelect.name}} {{currSelect.address}} {{pwm}}<span ng-if="deviceList.length == 1">Valor PWM: {{pwm}}</span>
+              <span ng-show="isConnected">Connected To: {{currSelect.name}} {{currSelect.address}} Valor PWM: {{pwm}}</span>
+              <span ng-show="!isConnected">Find Devices</span>
               <button class="button button-right button-assertive" ng-click="getDevices()" ng-if="deviceList.length == 0">
                 <i class="ion-refresh"></i>
               </button>
+              <button class="button button-right button-assertive" ng-click="getSensorData()" ng-show="isConnected">
+                <i class="ion-stats-bars"></i>
+              </button>
+              <button class="button button-right button-assertive" ng-click="stopSensorData()" ng-show="isGettingSensorData">
+                <i class="ion-close"></i>
+              </button>
             </div>
           </div>
+
+          <div class="list" id="chartsContainer">
+            Sensor 1
+            <canvas id="sensor1Chart"  class="chart chart-line" data="graph.data1" labels="graph.labels"
+              series='graph.series' height="100"></canvas>
+
+            <!-- Sensor 2
+            <canvas id="sensor2Chart"  class="chart chart-line" data="graph.data2" labels="graph.labels"
+              series='graph.series' height="100"></canvas>
+
+            Sensor 3
+            <canvas id="sensor3Chart"  class="chart chart-line" data="graph.data3" labels="graph.labels"
+              series='graph.series' height="100"></canvas> -->
+          </div>
+
         </div>
 
-        <div class="list" id="chartsContainer">
-          Telemetría
-          <canvas id="sensor1Chart"  class="chart chart-line" data="graph.data" labels="graph.labels"
-            series='graph.series' height="100"></canvas>
-        </div>
+        <div ng-show="mapsSelected">
+          <button class="button button-assertive" ng-click="centerMe()">
+            <i class="ion-navigate"></i>
+          </button>
 
-        <!-- 
-        <div class="list">
-          Sensor 2
-          <canvas id="sensor2Chart"  class="chart chart-line" data="graph.data" labels="graph.labels"
-            series='graph.series' height="100"></canvas>
-        </div>
+          <div id="map" data-tap-disabled="true"></div>
 
-        Sensor 3
-        <canvas id="sensor3Chart"  class="chart chart-line" data="graph.data" labels="graph.labels"
-          series='graph.series' height="100"></canvas>
-        -->
+        </div>
 
       </ion-content>
     </ion-pane>
