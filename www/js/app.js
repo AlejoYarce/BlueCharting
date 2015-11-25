@@ -1,8 +1,8 @@
 angular.module('BlueChart', [
   'ionic',
   'controller',
-  'ngCordova',
-  'chart.js'
+  'ngCordova'/*,
+  'chart.js'*/
   ])
 
 .run(function($ionicPlatform, $cordovaBluetoothSerial) {

@@ -24,12 +24,9 @@ angular.module('controller', [])
 
 		$scope.graph = {};
 		$scope.graph.series = ['Sensor_VS_Time'];
-//		$scope.graph.labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-		$scope.graph.labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		$scope.graph.labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 		$scope.graph.data1 = [
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		];
 		$scope.graph.data2 = [
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -139,13 +136,13 @@ angular.module('controller', [])
 						$scope.graph.data1 = sensorData1;
 
 						var sensorData2 = $scope.graph.data2;
-						sensorData1[1].shift();
-						sensorData1[1].push(dataReceived[2]);
+						sensorData2[1].shift();
+						sensorData2[1].push(dataReceived[2]);
 						$scope.graph.data2 = sensorData2;
 
 						var sensorData3 = $scope.graph.data3;
-						sensorData1[2].shift();
-						sensorData1[2].push(dataReceived[3]);
+						sensorData3[2].shift();
+						sensorData3[2].push(dataReceived[3]);
 						$scope.graph.data3 = sensorData3;
 
 						var sensorLabels = $scope.graph.labels;
@@ -171,36 +168,57 @@ angular.module('controller', [])
 
 /////////////////////// MAPS ///////////////////////
 
+	var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	var labelsIndex = 0;
 	var options = {timeout: 10000, enableHighAccuracy: true};
+	var map, poly;
+
 	$scope.centerMe = function() {
 		$cordovaGeolocation.getCurrentPosition(options).then(
 			function(position) {
-				//var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-				var latLng = new google.maps.LatLng(37.3000, -120.4833);
 				var mapOptions = {
-					center: latLng,
+					center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
 					zoom: 16,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 
-		        var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-		 
+		        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+		        labelsIndex = -1;
+
 		        navigator.geolocation.getCurrentPosition(function(pos) {
-		            map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-		            var myLocation = new google.maps.Marker({
-		                position: new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude),
-		                map: map,
-		                title: "My Location"
-		            });
+		        	var positionLatLong = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
 		        });
 
 				$scope.map = map;
 
+				// This event listener calls addMarker() when the map is clicked.
+				google.maps.event.addListener(map, 'click', function(event) {
+						$scope.addMarker(event.latLng, map);
+				});
+
+				poly = new google.maps.Polyline({
+					strokeColor: '#000000',
+					strokeOpacity: 1.0,
+					strokeWeight: 5
+				});
+				poly.setMap(map);
 			},
 			function(error) {
-				console.log("Could not get location");
+				alert("GPS Disconnected!");
 			}
-		) 	;
+		);
+	};
+
+	$scope.addMarker = function(positionLatLong, map) {
+		labelsIndex++;
+		var path = poly.getPath();
+		path.push(positionLatLong);
+
+        var marker = new google.maps.Marker({
+            position: positionLatLong,
+            map: map,
+            label: labels[labelsIndex]
+        });
 	};
 
 });

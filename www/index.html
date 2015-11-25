@@ -9,12 +9,12 @@
     <link href="css/style.css" rel="stylesheet">
 
     <!-- Angulat Chart -->
-    <link href="//raw.githubusercontent.com/jtblin/angular-chart.js/master/dist/angular-chart.css" rel="stylesheet">
+    <!-- <link href="//raw.githubusercontent.com/jtblin/angular-chart.js/master/dist/angular-chart.css" rel="stylesheet"> -->
 
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
     <script src="js/chart.js/Chart.min.js"></script>
-    <!-- <script src="https://rawgit.com/nnnick/Chart.js/master/Chart.min.js"></script> -->
-    <script src="https://rawgit.com/jtblin/angular-chart.js/master/dist/angular-chart.min.js"></script>
+    <!-- <script src="https://rawgit.com/nnnick/Chart.js/master/Chart.min.js"></script>
+    <script src="https://rawgit.com/jtblin/angular-chart.js/master/dist/angular-chart.min.js"></script> -->
 
 
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
@@ -35,6 +35,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCi9qqyU5sxNF4IZBtpL0HTtfRh_CY2Uro&sensor=true"></script>
     
   </head>
+
   <body ng-app="BlueChart">
 
     <ion-pane>
@@ -92,28 +93,29 @@
             </div>
           </div>
 
-          <div class="list" id="chartsContainer">
+          <!-- <div class="list" id="chartsContainer">
             Sensor 1
             <canvas id="sensor1Chart"  class="chart chart-line" data="graph.data1" labels="graph.labels"
               series='graph.series' height="100"></canvas>
 
-            <!-- Sensor 2
+            Sensor 2
             <canvas id="sensor2Chart"  class="chart chart-line" data="graph.data2" labels="graph.labels"
               series='graph.series' height="100"></canvas>
 
             Sensor 3
             <canvas id="sensor3Chart"  class="chart chart-line" data="graph.data3" labels="graph.labels"
-              series='graph.series' height="100"></canvas> -->
-          </div>
+              series='graph.series' height="100"></canvas>
+          </div> -->
 
         </div>
 
         <div ng-show="mapsSelected">
+
           <button class="button button-assertive" ng-click="centerMe()">
             <i class="ion-navigate"></i>
           </button>
 
-          <div id="map" data-tap-disabled="true"></div>
+          <div id="map" data-tap-disabled="true" ng-click="addNewMarker()"></div>
 
         </div>
 
